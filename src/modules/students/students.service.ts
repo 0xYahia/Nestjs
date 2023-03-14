@@ -1,45 +1,54 @@
-import { Injectable, Delete } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UpdateStudentDto } from './dto/update-student.dto';
-import { Student } from './student.model';
+import { CreateStudentDto } from './dto/create-student.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { IStudent } from './student.interface';
 
-let Students: Student[] = [];
-
+// let Students: CreateStudentDto[] = [];
+let fieldsIgnored = {
+  __v: false,
+};
 @Injectable()
 export class StudentsService {
-  create(student: Student) {
-    Students.push(student);
-    return 'This action adds a new student';
+  [x: string]: any;
+  constructor(@InjectModel('Students') private StudentModel: Model<IStudent>) {}
+
+  async create(student: CreateStudentDto) {
+    let newStudent = new this.StudentModel(student);
+    await newStudent.save();
+    return newStudent;
   }
 
-  findAll() {
-    return Students;
+  async findAll() {
+    let allStudents = await this.StudentModel.find({}, fieldsIgnored)
+      .populate({ path: 'coursesIDS', select: 'name' })
+      .exec();
+    return allStudents;
   }
 
-  findOne(id: number) {
-    const newStd = Students.find((std) => std.id === id) || {};
-    return newStd;
+  async findOne(id: any) {
+    const student = await this.StudentModel.findById(id)
+      .populate({ path: 'coursesIDS', select: 'name' })
+      .exec();
+    return student;
   }
 
-  update(id: number, updateStudent: Student) {
-    let index;
-    Students.find((std, i) => {
-      if (std.id === id) {
-        index = i;
-        std.age = updateStudent.age;
-        std.coursesIDS = updateStudent.coursesIDS;
-      }
-    });
-    return Students[index];
+  async update(id: any, updateStudent: UpdateStudentDto) {
+    let stduent = await this.StudentModel.findOneAndUpdate(
+      id,
+      {
+        ...updateStudent,
+      },
+      { new: true },
+    )
+      .populate({ path: 'coursesIDS', select: 'name' })
+      .exec();
+    return stduent;
   }
 
-  remove(id: number) {
-    let index;
-    Students.find((std, i) => {
-      index = i;
-      if (std.id === id) {
-        Students.splice(index, std.id);
-      }
-    });
+  async remove(id: any) {
+    await this.StudentModel.findOneAndDelete(id).exec();
 
     return `This action removes a #${id} student`;
   }
