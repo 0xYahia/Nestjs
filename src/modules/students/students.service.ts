@@ -22,14 +22,14 @@ export class StudentsService {
 
   async findAll() {
     let allStudents = await this.StudentModel.find({}, fieldsIgnored)
-      .populate({ path: 'coursesIDS', select: 'name' })
+      .populate({ path: 'coursesIDS', select: 'name -_id' })
       .exec();
     return allStudents;
   }
 
   async findOne(id: any) {
     const student = await this.StudentModel.findById(id)
-      .populate({ path: 'coursesIDS', select: 'name' })
+      .populate({ path: 'coursesIDS', select: 'name -_id' })
       .exec();
     return student;
   }
