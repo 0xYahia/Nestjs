@@ -7,6 +7,10 @@ import { ProductsModule } from './modules/products/products.module';
 import { StudentsModule } from './modules/students/students.module';
 import { CoursesModule } from './modules/courses/courses.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from './modules/auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './modules/auth/auth.guard';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -16,11 +20,13 @@ import { MongooseModule } from '@nestjs/mongoose';
     ProductsModule,
     StudentsModule,
     CoursesModule,
+    AuthModule,
+    JwtModule.register({ secret: 'secret', signOptions: { expiresIn: '1d' } }),
     MongooseModule.forRoot(
       'mongodb+srv://Yahia:5zWu1tXNnkqiJ9dI@cluster0.z0wznpm.mongodb.net/test',
     ),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, { provide: APP_GUARD, useClass: RolesGuard }],
 })
 export class AppModule {}

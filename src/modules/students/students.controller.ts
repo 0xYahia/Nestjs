@@ -12,6 +12,8 @@ import {
 import { StudentsService } from './students.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
+import { Roles } from '../auth/roles.decorator';
+import { Role } from '../auth/enum.auth';
 
 @Controller('students')
 export class StudentsController {
@@ -19,6 +21,7 @@ export class StudentsController {
 
   @UsePipes(ValidationPipe)
   @Post()
+  @Roles(Role.Admin)
   create(@Body() AllBody: CreateStudentDto) {
     return this.studentsService.create(AllBody);
   }
