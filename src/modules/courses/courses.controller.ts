@@ -9,6 +9,8 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { Role } from '../auth/enum.auth';
+import { Roles } from '../auth/roles.decorator';
 // import { CreateCourseDto } from './dto/create-course.dto;
 import { CoursesService } from '../courses/courses.service';
 import { Course } from './courses.model';
@@ -19,6 +21,7 @@ export class CoursesController {
 
   @UsePipes(ValidationPipe)
   @Post()
+  @Roles(Role.Admin)
   create(@Body() AllBody: Course) {
     return this.coursesService.create(AllBody);
   }
